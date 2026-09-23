@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="GmFIjjXEAyPlB8jKZmOaeL">
+<head data-page-node-id="oAdQk24SoFUm4EIQdc1CJJ">
+<meta charset="UTF-8" data-page-node-id="BBGPT32C54nMoDK5kUhnGs">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="4cdLBlDaDdzNOsUCyVjhm9">
+<title>APP 本地化翻译工作台</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230f62fe'/%3E%3Cg fill='%23fff'%3E%3Crect x='8' y='11' width='16' height='2' rx='1'/%3E%3Crect x='8' y='15' width='16' height='2' rx='1'/%3E%3Crect x='8' y='19' width='16' height='2' rx='1'/%3E%3C/g%3E%3C/svg%3E" data-page-node-id="xibjxS4bYQaLEliIKYVK7v">
+<style>
+:root{
+  --paper:#f1f4f8; --card:#fff; --line:#e0e6ee; --line2:#eef2f7;
+  --ink:#121820; --ink2:#55606e; --ink3:#8a95a3;
+  --accent:#0f62fe; --accent2:#2a6dff; --accent-soft:#eaf2ff; --accent-line:#c7dbff;
+  --teal:#0b7f6f; --teal-soft:#e6f4f1;
+  --green:#12874a; --green-soft:#e7f5ed;
+  --amber:#9a5b06; --amber-soft:#fdf2e2;
+  --red:#bf2f2f; --red-soft:#fdeceb;
+  --r-sm:8px; --r:12px; --r-lg:16px;
+  --sh1:0 1px 2px rgba(20,26,32,.05);
+  --sh2:0 2px 4px rgba(20,26,32,.04),0 12px 28px -20px rgba(20,26,32,.35);
+  --sh3:0 8px 20px rgba(20,26,32,.10),0 32px 64px -28px rgba(20,26,32,.45);
+  --bar:62px;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  font-feature-settings:"tnum";
+  background-image:radial-gradient(circle at 1px 1px,rgba(20,26,32,.05) 1px,transparent 0);
+  background-size:22px 22px}
+:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(15,98,254,.35)}
+button{font-family:inherit}
+
+/* ── 顶部应用栏 ─────────────────────────── */
+.bar{position:sticky;top:0;z-index:60;height:var(--bar);background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1660px;margin:0 auto;height:var(--bar);padding:0 22px;
+  display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand .mark{width:28px;height:28px;border-radius:9px;flex:none;
+  background:linear-gradient(150deg,var(--accent),#4d86ff);position:relative;
+  box-shadow:0 4px 10px -4px rgba(15,98,254,.8)}
+.brand .mark:after{content:"";position:absolute;left:7px;right:7px;top:9px;height:2px;
+  background:#fff;border-radius:1px;box-shadow:0 4px 0 #fff,0 8px 0 #fff}
+.brand h1{font-size:15.5px;font-weight:650;margin:0;letter-spacing:-.2px;line-height:1.25}
+.brand p{margin:0;font-size:11.5px;color:var(--ink3);letter-spacing:.1px}
+.brand em{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--ink3);
+  border:1px solid var(--line);background:#f4f7fb;border-radius:5px;padding:1px 5px}
+
+.bar-status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;
+  color:var(--ink2);font-family:var(--mono);background:#f4f7fb;border:1px solid var(--line);
+  border-radius:99px;padding:5px 13px;white-space:nowrap}
+.bar-status i{width:7px;height:7px;border-radius:50%;background:#c2cbd6;flex:none}
+.bar-status.run{color:#0b4fc4;background:var(--accent-soft);border-color:var(--accent-line)}
+.bar-status.run i{background:var(--accent);animation:beat 1.15s var(--ease) infinite}
+.bar-status.ok{color:#0f6b3c;background:var(--green-soft);border-color:#bfe3ce}
+.bar-status.ok i{background:var(--green)}
+.bar-status.er{color:var(--red);background:var(--red-soft);border-color:#f2cdcb}
+.bar-status.er i{background:var(--red)}
+@keyframes beat{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.55);opacity:.45}}
+
+.bar-act{display:flex;align-items:center;gap:8px;flex:none}
+.btn{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);
+  color:var(--ink2);padding:7px 13px;border-radius:var(--r-sm);font-size:12.5px;cursor:pointer;
+  transition:.16s var(--ease);box-shadow:var(--sh1)}
+.btn:hover{border-color:#c8d0da;color:var(--ink);background:#f8fafc}
+.btn:active{transform:translateY(1px)}
+.btn .cnt{font-family:var(--mono);font-size:10.5px;background:#eaf0f7;color:var(--ink2);
+  border-radius:99px;padding:1px 6px;min-width:18px;text-align:center}
+.btn:hover .cnt{background:var(--accent-soft);color:#0b4fc4}
+.bar-prog{height:2px;background:transparent;overflow:hidden}
+.bar-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#6ea0ff);
+  transition:width .45s var(--ease)}
+
+/* ── 布局 ───────────────────────────────── */
+.shell{display:flex;gap:20px;align-items:flex-start;max-width:1660px;margin:0 auto;padding:22px}
+
+/* ── 左栏：配置卡片 ─────────────────────── */
+.side{width:380px;flex:none;position:sticky;top:calc(var(--bar) + 22px);
+  max-height:calc(100vh - var(--bar) - 44px);overflow:auto;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:20px 20px 24px;box-shadow:var(--sh2)}
+.side::-webkit-scrollbar{width:9px}
+.side::-webkit-scrollbar-thumb{background:#d3dae4;border-radius:9px;border:3px solid var(--card)}
+.side::-webkit-scrollbar-track{background:transparent}
+.side.locked fieldset{opacity:.45;pointer-events:none;transition:.2s var(--ease)}
+
+fieldset{border:none;margin:0 0 18px;padding:20px 0 0;position:relative}
+fieldset+fieldset{border-top:1px solid var(--line2)}
+legend{font-size:10.5px;font-weight:650;color:var(--ink3);letter-spacing:1.2px;
+  text-transform:uppercase;padding:0 0 11px;display:flex;align-items:center;gap:8px;width:100%}
+legend b{background:#eaf0f7;color:var(--ink2);font-size:10px;font-weight:600;
+  width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-family:var(--mono);flex:none}
+.legend-act{margin-left:auto;display:flex;gap:4px}
+.mini{border:none;background:none;color:var(--ink3);font-size:11px;cursor:pointer;padding:2px 6px;
+  border-radius:5px;letter-spacing:0;text-transform:none;font-weight:400;transition:.14s var(--ease)}
+.mini:hover{background:#eaf0f7;color:var(--ink)}
+.side .note{font-size:11.5px;color:var(--ink3);margin-top:7px;line-height:1.5}
+
+.seg{display:flex;background:#f2f5f9;border:1px solid var(--line);border-radius:10px;
+  padding:3px;gap:3px;margin-bottom:12px}
+.seg button{flex:1;border:none;background:none;padding:7px;border-radius:7px;cursor:pointer;
+  font-size:12.5px;color:var(--ink2);transition:.18s var(--ease)}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:var(--sh1)}
+
+.side .drop{border:1.5px dashed #ccd4de;border-radius:var(--r);padding:20px 14px;text-align:center;
+  color:var(--ink2);cursor:pointer;transition:.2s var(--ease);font-size:12.5px;background:#fbfcfe}
+.side .drop:hover,.side .drop.over{border-color:var(--accent);background:var(--accent-soft);color:#0b4fc4}
+.side .drop span{display:block;font-size:11px;color:var(--ink3);margin-top:4px}
+
+.side textarea{width:100%;min-height:126px;border:1px solid var(--line);border-radius:var(--r);
+  padding:11px;font-family:var(--mono);font-size:12.5px;resize:vertical;line-height:1.7;
+  color:var(--ink);background:#fff;transition:.18s var(--ease)}
+.side textarea::placeholder{color:var(--ink3)}
+.side textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,98,254,.14)}
+
+.side .chips{display:flex;flex-wrap:wrap;gap:6px}
+.side .chip{border:1px solid var(--line);background:#fff;color:var(--ink2);
+  padding:5px 11px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;
+  transition:.16s var(--ease)}
+.side .chip:hover{border-color:#c3ccd8;color:var(--ink)}
+.side .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+
+.side .field{margin-bottom:12px}
+.side .field label{display:block;font-size:11.5px;color:var(--ink3);margin-bottom:6px}
+.side select,.side input[type=number]{width:100%;border:1px solid var(--line);border-radius:10px;
+  padding:9px 10px;background:#fff;font-size:12.5px;color:var(--ink);
+  transition:.18s var(--ease);appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 50%),linear-gradient(135deg,var(--ink3) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 50%,calc(100% - 10px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.side input[type=number]{background-image:none}
+.side select:focus,.side input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,98,254,.14)}
+/* 下拉弹层必须白底深字：系统弹层不继承自定义背景，浅字会整片消失 */
+.side select option{background:#fff;color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.side .src{background:#f7f9fc;border:1px solid var(--line);border-radius:var(--r);
+  padding:10px 12px;font-size:12px;position:relative}
+.side .src .hd{color:var(--ink3);margin-bottom:5px;font-size:11px;padding-right:20px}
+.side .src ul{margin:0;padding:0;list-style:none;max-height:96px;overflow:auto}
+.side .src li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1.5px 0;
+  color:var(--ink2);font-size:11.5px;font-family:var(--mono)}
+.side .src li b{color:var(--ink3);font-weight:400}
+.src-x{position:absolute;top:7px;right:8px;border:none;background:none;color:var(--ink3);
+  cursor:pointer;font-size:14px;line-height:1;padding:2px 4px;border-radius:5px}
+.src-x:hover{background:#e6ecf3;color:var(--red)}
+
+.go{position:relative;width:100%;background:var(--accent);color:#fff;border:none;padding:13px;
+  border-radius:var(--r);font-size:14.5px;font-weight:600;cursor:pointer;letter-spacing:.3px;
+  transition:.18s var(--ease);box-shadow:0 8px 20px -8px rgba(15,98,254,.8)}
+.go:hover:not(:disabled){background:var(--accent2);transform:translateY(-1px)}
+.go:active:not(:disabled){transform:translateY(0) scale(.99)}
+.go:disabled{background:#e2e8f0;box-shadow:none;cursor:not-allowed;color:#98a2b0}
+.go.busy{background:var(--accent2);cursor:progress}
+.go.busy:after{content:"";position:absolute;right:16px;top:50%;width:14px;height:14px;margin-top:-7px;
+  border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;
+  animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.go.shake{animation:shake .45s var(--ease)}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}80%{transform:translateX(4px)}100%{transform:none}}
+.go-hint{font-size:11.5px;color:var(--ink3);text-align:center;margin-top:9px;min-height:17px}
+
+.err{background:var(--red-soft);border:1px solid #f2cdcb;color:var(--red);border-radius:var(--r);
+  padding:11px 13px;font-size:12.5px;display:none;line-height:1.7}
+#errSide{margin-top:11px}
+#errSide .li{display:flex;gap:7px;padding:1.5px 0;line-height:1.5}
+#errSide .li:before{content:"·";color:var(--red);flex:none;font-weight:700}
+
+.quota{font-size:11.5px;color:var(--ink3);background:#f7f9fc;border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;margin-top:14px;line-height:1.6}
+.quota b{color:var(--ink2);font-weight:500}
+
+/* ── 右栏 ───────────────────────────────── */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;
+  box-shadow:var(--sh2)}
+.panel-hd{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;
+  border-bottom:1px solid var(--line2);min-height:32px}
+.panel-hd h2{font-size:13px;font-weight:650;margin:0;letter-spacing:.2px}
+.panel-hd h2:before{content:"";display:inline-block;width:3px;height:13px;background:var(--accent);
+  border-radius:2px;margin-right:9px;vertical-align:-1px}
+.panel-hd .meta{font-size:11.5px;color:var(--ink3);margin-left:auto;font-family:var(--mono)}
+.blank{color:var(--ink3);font-size:13px;text-align:center;padding:40px 20px;line-height:1.9}
+.blank .glyph{display:block;width:52px;height:52px;margin:0 auto 14px;border-radius:14px;
+  border:1.5px dashed #d0d8e2;position:relative}
+.blank .glyph:after{content:"";position:absolute;left:50%;top:50%;width:16px;height:16px;
+  margin:-8px 0 0 -8px;border-radius:4px;background:#e6ecf3}
+
+/* 流水线 */
+.stage{display:flex;align-items:stretch;padding:6px 0 2px}
+.node{width:162px;flex:none;border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;
+  background:#f8fafc;position:relative;transition:.3s var(--ease)}
+.node .idx{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.8px}
+.node .nm{font-size:13.5px;font-weight:600;margin:3px 0 4px;letter-spacing:-.1px}
+.node .mdl{font-size:10.5px;color:var(--ink3);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:15px}
+.node .stat{margin-top:10px;display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink2)}
+.node .stat i{width:7px;height:7px;border-radius:50%;background:#c2cbd6;flex:none;transition:.2s}
+.node .data{font-size:10.5px;color:var(--ink3);margin-top:7px;min-height:15px;font-family:var(--mono)}
+.node.run{border-color:var(--accent);background:linear-gradient(180deg,var(--accent-soft),#fbfcff);
+  box-shadow:0 0 0 4px rgba(15,98,254,.1),0 10px 24px -16px rgba(15,98,254,.7)}
+.node.run .nm{color:#0b4fc4}
+.node.run .stat i{background:var(--accent);animation:beat 1.15s var(--ease) infinite}
+.node.run .stat span{color:#0b4fc4;font-weight:600}
+.node.done{border-color:#a8d5bb;background:#fbfdfb}
+.node.done .stat i{background:var(--green)}
+.node.done .nm{color:#0f6b3c}
+.node.warn{border-color:var(--amber);background:linear-gradient(180deg,var(--amber-soft),#fffdf9)}
+.node.warn .stat i{background:var(--amber)}
+.node.fail{border-color:var(--red);background:linear-gradient(180deg,var(--red-soft),#fffbfb)}
+.node.fail .stat i{background:var(--red)}
+
+.pipe{flex:1;min-width:34px;position:relative}
+.pipe::before{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;
+  background:#e0e7ef;border-radius:3px}
+.pipe::after{content:"";position:absolute;left:0;right:0;top:50%;height:4px;margin-top:-2px;
+  border-radius:3px;opacity:0;transition:opacity .25s var(--ease);
+  background:repeating-linear-gradient(100deg,transparent 0 5px,var(--accent) 5px 17px);
+  background-size:22px 4px}
+.pipe .arw{position:absolute;right:2px;top:50%;margin-top:-5px;width:0;height:0;
+  border-left:8px solid #c8d0da;border-top:5px solid transparent;border-bottom:5px solid transparent;
+  transition:border-left-color .25s var(--ease)}
+.pipe.on::after{opacity:1;animation:flow .5s linear infinite}
+.pipe.on::before{background:var(--accent-line)}
+.pipe.on .arw{border-left-color:var(--accent)}
+@keyframes flow{from{background-position:0 0}to{background-position:22px 0}}
+
+.loop{position:absolute;left:50%;bottom:-25px;transform:translateX(-50%);
+  font-size:10.5px;color:#0b4fc4;background:var(--accent-soft);border:1px solid var(--accent-line);
+  padding:2px 9px;border-radius:99px;white-space:nowrap;opacity:0;transition:.25s var(--ease)}
+.node.showloop .loop{opacity:1}
+.stage-foot{margin-top:32px;display:flex;align-items:center;gap:10px;font-size:11.5px;
+  color:var(--ink2);font-family:var(--mono)}
+.stage-foot .lbar{flex:1;height:4px;background:var(--line2);border-radius:3px;overflow:hidden}
+.stage-foot .lbar i{display:block;height:100%;width:0;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),#6ea0ff);transition:width .5s var(--ease)}
+
+/* 日志 */
+.log{height:212px;overflow:auto;font-family:var(--mono);font-size:11.5px;line-height:1.85;
+  background:#f7f9fc;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.log::-webkit-scrollbar{width:9px}
+.log::-webkit-scrollbar-thumb{background:#d3dae4;border-radius:9px;border:3px solid #f7f9fc}
+.log div{display:flex;gap:10px;animation:slidein .32s var(--ease) both}
+.log .t{color:#a2adba;flex:none}
+.log .g{flex:none;color:var(--accent);font-weight:600}
+.log .g.ok{color:var(--green)} .log .g.wn{color:var(--amber)} .log .g.er{color:var(--red)}
+.log .m{color:var(--ink2);word-break:break-word}
+.log .m b{color:var(--ink);font-weight:600}
+@keyframes slidein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* 结果 */
+.tabs2{display:flex;gap:6px;margin-left:auto}
+.main .chip{border:1px solid var(--line);background:#fff;color:var(--ink2);padding:5px 12px;
+  border-radius:var(--r-sm);cursor:pointer;font-size:12px;transition:.16s var(--ease)}
+.main .chip:hover{border-color:#c3ccd8;color:var(--ink)}
+.main .chip.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:500}
+.tbl-wrap{overflow:auto;max-height:480px;border:1px solid var(--line);border-radius:var(--r)}
+.tbl-wrap::-webkit-scrollbar{width:10px;height:10px}
+.tbl-wrap::-webkit-scrollbar-thumb{background:#d3dae4;border-radius:9px;border:3px solid #fff}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th:first-child{width:1%;white-space:nowrap}
+td:nth-child(2){min-width:88px}
+th,td{border-bottom:1px solid var(--line2);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:#f6f8fc;font-weight:600;color:var(--ink2);font-size:11px;position:sticky;top:0;z-index:1;
+  letter-spacing:.7px;text-transform:uppercase;border-bottom:1px solid var(--line)}
+tbody tr:nth-child(even){background:#fbfcfe}
+tbody tr:hover{background:#faf7f2}
+td.k{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.mod{background:var(--amber-soft)!important}
+.badge{font-size:10px;color:var(--amber);border:1px solid #eddcbc;border-radius:5px;padding:1px 5px;margin-left:6px}
+.dl{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;text-decoration:none;
+  padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;transition:.18s var(--ease)}
+.dl:hover{background:#000;transform:translateY(-1px)}
+
+.spk{border:1px solid var(--line);background:#fff;border-radius:7px;width:24px;height:24px;
+  cursor:pointer;color:var(--ink3);font-size:10px;padding:0;margin-left:6px;vertical-align:middle;
+  transition:.16s var(--ease);line-height:1}
+.spk:hover{border-color:var(--ink);color:var(--ink);transform:translateY(-1px)}
+.spk.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.dlb:hover{border-color:var(--teal);color:var(--teal)}
+
+/* ── 历史抽屉 ───────────────────────────── */
+.scrim{position:fixed;inset:0;background:rgba(20,26,32,.38);backdrop-filter:blur(2px);
+  opacity:0;pointer-events:none;transition:opacity .28s var(--ease);z-index:80}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,92vw);z-index:90;background:var(--card);
+  border-left:1px solid var(--line);box-shadow:var(--sh3);display:flex;flex-direction:column;
+  transform:translateX(102%);transition:transform .32s var(--ease);visibility:hidden}
+.drawer.on{transform:none;visibility:visible}
+.dr-hd{display:flex;align-items:center;gap:10px;padding:18px 20px;border-bottom:1px solid var(--line);flex:none}
+.dr-hd h2{font-size:14px;font-weight:650;margin:0}
+.dr-hd .back{display:none}
+.dr-hd.detail .back{display:inline-flex}
+.dr-body{flex:1;overflow:auto;padding:16px 20px 24px}
+.dr-close{border:1px solid var(--line);background:#fff;color:var(--ink2);width:30px;height:30px;
+  border-radius:var(--r-sm);cursor:pointer;font-size:14px;line-height:1;transition:.16s var(--ease)}
+.dr-close:hover{border-color:#c3ccd8;color:var(--ink);background:#f7f9fc}
+
+.hitem{display:flex;flex-direction:column;gap:6px;width:100%;text-align:left;background:#fff;
+  border:1px solid var(--line);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;cursor:pointer;
+  transition:.16s var(--ease);box-shadow:var(--sh1)}
+.hitem:hover{border-color:#c3ccd8;background:#f8fafc;transform:translateY(-1px);box-shadow:var(--sh2)}
+.hitem.on{border-color:var(--accent);background:var(--accent-soft)}
+.hitem .r1{display:flex;align-items:center;gap:9px;width:100%}
+.hitem .ht{color:var(--ink3);font-family:var(--mono);font-size:11px;flex:none}
+.hitem .hc{font-family:var(--mono);font-size:10.5px;color:var(--ink2);background:#eaf0f7;
+  border-radius:5px;padding:1px 6px;flex:none}
+.hitem .hm{margin-left:auto;font-size:11px;color:var(--ink3);font-family:var(--mono);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
+.hitem .r2{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-size:11px;color:var(--ink2);background:#f2f5f9;border:1px solid var(--line2);
+  border-radius:6px;padding:1px 7px}
+.dr-empty{color:var(--ink3);font-size:12.5px;text-align:center;padding:44px 16px;line-height:1.9}
+
+.dv-meta{display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:12px;
+  background:#f7f9fc;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:14px}
+.dv-meta dt{color:var(--ink3)} .dv-meta dd{margin:0;color:var(--ink);font-family:var(--mono);font-size:11.5px}
+.dv-prev{border:1px solid var(--line);border-radius:var(--r);overflow:auto;max-height:320px}
+.dv-prev table{font-size:12px}
+.dv-act{display:flex;gap:9px;margin-top:14px}
+.dv-act .btn{flex:1;justify-content:center;padding:10px}
+.dv-act .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.dv-act .btn.pri:hover{background:var(--accent2);border-color:var(--accent2);color:#fff}
+
+/* ── Toast ──────────────────────────────── */
+.toasts{position:fixed;right:22px;bottom:22px;z-index:120;display:flex;flex-direction:column;
+  gap:9px;align-items:flex-end}
+.toast{background:var(--ink);color:#fff;font-size:12.5px;padding:10px 15px;border-radius:10px;
+  box-shadow:var(--sh3);animation:tin .28s var(--ease) both;max-width:320px;line-height:1.5}
+.toast.ok{background:#0f6b3c} .toast.er{background:var(--red)}
+.toast.out{animation:tout .24s var(--ease) both}
+@keyframes tin{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateY(6px) scale(.97)}}
+
+@media (max-width:1080px){
+  .shell{flex-direction:column;padding:14px}
+  .side{width:100%;position:static;max-height:none}
+  .stage{flex-wrap:wrap;gap:10px}
+  .pipe{display:none}
+  .node{width:calc(50% - 5px)}
+  .bar-status{display:none}
+  .brand p{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body data-page-node-id="Z0FzXGQuxRoQAOHssJBOVg">
+
+<header class="bar" data-page-node-id="GYLJoWpgmKG5ejyG4DTvWz">
+  <div class="bar-in" data-page-node-id="6gaaXfTpJ7AJAKmb7AqTqV">
+    <div class="brand" data-page-node-id="ZTAIABSx7bzC7JuFFxAgO9">
+      <span class="mark" data-page-node-id="1BNXbpuP1kfJHJbP7gCzoP"></span>
+      <div data-page-node-id="Oy5YKItIH92iLMKicBhalX">
+        <h1 data-page-node-id="hZvBOR3uvKJzFDgfuEZjHg">本地化翻译工作台</h1>
+        <p data-page-node-id="OepxGNSevTFX04CwssiH9n">A 模型初译 · B 模型交叉质检 · 双模型互校定稿</p>
+      </div>
+      <em data-page-node-id="dU8UJGCNDdrf5ocWEkBeuU">v1</em>
+    </div>
+    <div class="bar-status" id="barStatus" data-page-node-id="iwX7NI6gnUJl7HeLUUV8To"><i data-page-node-id="UnTi4OhnMe2CmY3H5LC8T5"></i><span id="barStatusT" data-page-node-id="PIq33nq01qxkw0dnCbrBps">空闲</span></div>
+    <div class="bar-act" data-page-node-id="wMlIk9F2Qh8SQFJY5LIHku">
+      <button class="btn" id="btnHistory" data-page-node-id="E4D0eVcZOacS3ApAaWd2Xf">历史<span class="cnt" id="histCnt" data-page-node-id="hhk706th409qxsOqx2Sp3z">0</span></button>
+      <button class="btn" id="reset" data-page-node-id="ayAYBpkw1n2B54BMS1BuYF">重置</button>
+    </div>
+  </div>
+  <div class="bar-prog" data-page-node-id="wk1MiRhRVwdCJGrgrZVM4C"><i id="barProg" data-page-node-id="vrUYYax3EJvnUMtL7YD1Gm"></i></div>
+</header>
+
+<div class="shell" data-page-node-id="fbDY042kReMVT01iMjNp9o">
+
+  <aside class="side" id="side" data-page-node-id="WDtY6xi47F9UdhsAEPSFSi">
+    <fieldset data-page-node-id="QDWqvCRAZZfc7QkQldKLTH">
+      <legend data-page-node-id="2U8iriFqXvlYIAAjHKbjiy"><b data-page-node-id="tWfS4fQbX2dy7heayPEVDj">1</b>待翻译内容</legend>
+      <div class="seg" data-page-node-id="WMBpoG4KcN5vDwscUA3uG0">
+        <button id="tabUpload" class="on" data-page-node-id="Xd5pCFBwiBErIar5WE2InA">导入表格</button>
+        <button id="tabManual" data-page-node-id="9p7Q8rv62j9NDWuNYCclGw">手动输入</button>
+      </div>
+      <div id="paneUpload" data-page-node-id="utcquT7atZe08UVY1KboXE">
+        <div class="drop" id="drop" data-page-node-id="AC1LNk5kNiRXjJGtVZCyln">选择 xlsx / csv，或拖到这里
+          <span data-page-node-id="pNjYy0fH1t8ZM7FtJmJzUD">需含 key、zh 两列</span></div>
+        <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden data-page-node-id="OGlRkOhk1B933t7S3doo0B">
+      </div>
+      <div id="paneManual" hidden data-page-node-id="SP0EPhEddiGMPWtMpKRmMJ">
+        <textarea id="manual" placeholder="每行一条，可只写中文，也可写 key|中文&#10;imi_about|关于&#10;设置&#10;连接失败，请重试"></textarea>
+        <div class="note" data-page-node-id="NXzzXO3MzUSnfGpcBBs2Ge">不写 key 时自动生成 key_1、key_2 …</div>
+      </div>
+      <div id="srcBox" style="margin-top:11px" hidden data-page-node-id="lMAeYdClqFSDd87GSOSW4E"></div>
+    </fieldset>
+
+    <fieldset data-page-node-id="F5rQ9tnSx9UysLcMPUcLO6">
+      <legend data-page-node-id="nBQCaZWbntAENWumKY6EzO"><b data-page-node-id="lcVtTVFJ8FXHIe7EQEOz10">2</b>目标语言
+        <span class="legend-act" data-page-node-id="S1nl5fF0H1kTkDCQr84TMr">
+          <button class="mini" id="langAll" data-page-node-id="QxgY9d5as0lk3z5XhfmlL3">全选</button>
+          <button class="mini" id="langNone" data-page-node-id="qE7xTvxJRE6Uv7qccGipYI">清空</button>
+        </span>
+      </legend>
+      <div class="chips" id="langs" data-page-node-id="ZMfkXsEHbIDdJGVvezSRiT"></div>
+    </fieldset>
+
+    <fieldset data-page-node-id="nC5RvIdVFMYzgmpQqNgcNW">
+      <legend data-page-node-id="ZEIfurxaLGH7cCsoiLYIUA"><b data-page-node-id="rJfGyMjS6jQPnA5Arqel8x">3</b>模型与轮次</legend>
+      <div class="field" data-page-node-id="pvv7uP1ovj5anBtuigj6iq">
+        <label data-page-node-id="hwRuhgENFHD8MMOctnOO8X">A 模型 · 初译</label>
+        <select id="modelA" data-page-node-id="MJsGAEtRPPFN5vatMhwfvg"></select>
+      </div>
+      <div class="field" data-page-node-id="MBpzuRKXqNIVnvQPv6Fti3">
+        <label data-page-node-id="9DeKOya52OIJMvptgBAtWK">B 模型 · 质检</label>
+        <select id="modelB" data-page-node-id="sZnA58Cj5iwTyiyPGGc48R"></select>
+      </div>
+      <div class="two" data-page-node-id="WVD77wdQPDSox6E8xnhkPM">
+        <div class="field" style="margin-bottom:0" data-page-node-id="eAkbtEkh7MXATFbBXRXHBG">
+          <label data-page-node-id="BjdxJMAdk2cT0vghEIpx88">最多质检轮次</label>
+          <input type="number" id="maxIter" value="3" min="1" max="10" data-page-node-id="uRiWLZS5aDecNNXPMAvK2O">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset data-page-node-id="y62tfnVW9AaqZk3xojWRxc">
+      <legend data-page-node-id="BkajLZJLHPlhzoDHAXQaBM"><b data-page-node-id="E8y9v4G7WhkMX9DHwARch3">4</b>配音音色</legend>
+      <div class="field" style="margin-bottom:0" data-page-node-id="9fRTlGDFp1eJ5bNCMoR1S3">
+        <label data-page-node-id="IbDmWJXBed2aihXqHSq8uE">用于试听与下载配音</label>
+        <select id="voiceSel" data-page-node-id="dCHHGbebi5K0JBsJjjcgAu"></select>
+      </div>
+      <div class="note" data-page-node-id="9kFppfQlf4muvvTr6q4E1M">英语文案选 Alayna，波兰语文案选 Katarzyna</div>
+    </fieldset>
+
+    <button class="go" id="start" data-page-node-id="7w5IB1fd8ZY0DZBflz2qIp">开始翻译</button>
+    <div class="go-hint" id="startHint" data-page-node-id="OCgKQYEKoJkgjGSDX2jD5s">先导入内容并选择至少一个语言</div>
+    <div class="err" id="errSide" data-page-node-id="iMNrj81PD14gdVke5GmaUr"></div>
+
+    <div class="quota" data-page-node-id="yhMWDbgEIwH7OrBxgkBmMq">免费档：<b data-page-node-id="Y4pQI2Rky79ZE3lwbHJl2B">Ling Sante</b> 每日 100 次、<b data-page-node-id="QFgWEqkEF8bHHaNdIEyG9G">Laguna</b> 容量制（偶发限流，已自动重试）。单语言消耗 = 1 次 A + N 次 B。</div>
+  </aside>
+
+  <main class="main" data-page-node-id="08zUB4J2pWl5cjq8vDb4SY">
+    <div class="panel" data-page-node-id="HxhGRSZ9Pgels8DFJlfV02">
+      <div class="panel-hd" data-page-node-id="6nQi7iebfuvcIxBEnPsaz2">
+        <h2 data-page-node-id="brhYkRlihqlajlyyp9P1Iz">数据流转</h2>
+        <span class="meta" id="stageMeta" data-page-node-id="BV0t5hZppNOrKdRzNdFcJ0">等待开始</span>
+      </div>
+      <div id="stageBox" data-page-node-id="LlXZIjAfm3cea8yDqBCnjq">
+        <div class="blank" data-page-node-id="N0kGyVJJ2b6giq62RmbGV2"><span class="glyph" data-page-node-id="znzGvqdwUuYSeEoHnANiUO"></span>左侧配置好内容与语言，点「开始翻译」，这里会实时显示每一步的数据流向</div>
+      </div>
+      <div class="err" id="err" style="margin-top:12px" data-page-node-id="fdHCajritSAEIHHdsRYWsH"></div>
+    </div>
+
+    <div class="panel" id="logPanel" hidden data-page-node-id="MGLMVV189zkEyL28Jv8VHF">
+      <div class="panel-hd" data-page-node-id="nAVHbbbOQ9m0gE0lMEetgt"><h2 data-page-node-id="cBWnQMIktHZ00EkmE3F7Qq">执行日志</h2><span class="meta" id="logMeta" data-page-node-id="m0vqEIYaafDd9wgKOtBHGD"></span></div>
+      <div class="log" id="log" data-page-node-id="i34H1wO7DxooE3jbnu0Jxe"></div>
+    </div>
+
+    <div class="panel" id="resultPanel" hidden data-page-node-id="pDDkM9mwTPdC6egSJa6iei">
+      <div class="panel-hd" data-page-node-id="uGTw1HHrtIkhYYK06asX5q">
+        <h2 data-page-node-id="L2PiUtEDkqDHIHDAzv9B2m">翻译结果</h2>
+        <span class="meta" id="resultMeta" data-page-node-id="C7qPp1rBAEvhzLoCGgOkpq"></span>
+        <span class="tabs2" data-page-node-id="3xYHf8OScUXvqBV9FQeoWG">
+          <button class="chip on" id="viewFinal" data-page-node-id="vZJTuqLQifR6O56rZBrWVu">定稿总表</button>
+          <button class="chip" id="viewDiff" data-page-node-id="mbRfIQ3su0QcmoQj6w9FNt">初译 / 定稿</button>
+        </span>
+      </div>
+      <div id="diffPick" style="margin-bottom:12px;max-width:240px" hidden data-page-node-id="bfjlOK8KqYjFfo1hHLFb7d">
+        <select id="diffLang" data-page-node-id="cZFXU5S5r5Lt9UrGlrC4FC"></select>
+      </div>
+      <div class="tbl-wrap" data-page-node-id="OMqAm4BFXBW7sucV9xP4Hc"><table id="tbl" data-page-node-id="IUBlyhSNfDIprVCOHUZuv5"></table></div>
+      <div style="margin-top:14px" data-page-node-id="0j6lcMg0yFVIU87dvMcrtM"><a class="dl" id="dl" hidden href="#" data-page-node-id="LBRM93HCXnQ1ScMRXgLrg9">下载 xlsx</a></div>
+    </div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim" data-page-node-id="baJNTEgaoTQBz1Meh6IozG"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="翻译历史" data-page-node-id="L1TisMrsU630wvXVmiWW8s">
+  <div class="dr-hd" id="drHd" data-page-node-id="tABCFzi7dZdpdkDiqkPfEB">
+    <button class="dr-close back" id="drBack" title="返回列表" data-page-node-id="FkzKK7jNwnG7Rg2aS8ncmS">←</button>
+    <h2 id="drTitle" data-page-node-id="qmbVsDtrGxa9rXZjSSfivb">翻译历史</h2>
+    <button class="dr-close" id="drClose" title="关闭 (Esc)" style="margin-left:auto" data-page-node-id="be9M2kjlGamDgGUPrHANRe">✕</button>
+  </div>
+  <div class="dr-body" data-page-node-id="kmi3jcK1mYm6ucfXJRFgYJ">
+    <div id="histList" data-page-node-id="LgLAo1qMHgjxXSY3k4kz6b"><div class="dr-empty" data-page-node-id="RAsbfQLaGrQ7YDxJApSsQB">还没有翻译记录</div></div>
+    <div id="histDetail" hidden data-page-node-id="nwWA5vIHPipVkPBpLEovAA"></div>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts" data-page-node-id="bd0uZ85tMEzSqcqhyNBLpL"></div>
+
+<script>
+const LANGS = ["英语","波兰语","日语","韩语","繁体中文","泰语","印尼语","越南语","马来语","阿拉伯语","西班牙语","葡萄牙语","俄语","德语","法语","印地语"];
+const NODES = [
+  {id:1, nm:"输入", sub:"待翻译条目"},
+  {id:2, nm:"A 模型初译", sub:""},
+  {id:3, nm:"B 模型质检", sub:""},
+  {id:4, nm:"定稿", sub:"交叉校验通过"},
+];
+let items=[], selected=new Set(), running=false, curLang=null, srcName="";
+let DEFAULT_MODELS = {a:"", b:""};
+let draftMap={}, finalMap={}, langState={}, nodeState={}, qaRounds={}, view="final", MODEL_LABEL={};
+const mlabel = id => MODEL_LABEL[id] || String(id||"").split("/").pop().replace(":free","");
+const $ = id => document.getElementById(id);
+
+/* ── Toast ───────────────────────────── */
+function toast(msg, kind){
+  const box = $("toasts");
+  const t = document.createElement("div");
+  t.className = "toast" + (kind ? " " + kind : "");
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 240); }, 2600);
+}
+
+/* ── 顶部状态 ─────────────────────────── */
+function setStatus(text, cls){
+  const el = $("barStatus");
+  el.className = "bar-status" + (cls ? " " + cls : "");
+  $("barStatusT").textContent = text;
+}
+function setProg(p){ $("barProg").style.width = Math.min(100, Math.max(0, p)) + "%"; }
+
+/* ── 抽屉 ─────────────────────────────── */
+let lastFocus = null;
+function openDrawer(){
+  lastFocus = document.activeElement;
+  $("drawer").classList.add("on");
+  $("scrim").classList.add("on");
+  loadHistory();
+  setTimeout(() => { const f = $("drawer").querySelector("button"); f && f.focus(); }, 60);
+}
+function closeDrawer(){
+  $("drawer").classList.remove("on");
+  $("scrim").classList.remove("on");
+  showList();
+  lastFocus && lastFocus.focus();
+}
+function showList(){
+  $("histList").hidden = false; $("histDetail").hidden = true;
+  $("drHd").classList.remove("detail"); $("drTitle").textContent = "翻译历史";
+}
+function showDetail(){
+  $("histList").hidden = true; $("histDetail").hidden = false;
+  $("drHd").classList.add("detail");
+}
+$("btnHistory").onclick = openDrawer;
+$("drClose").onclick = closeDrawer;
+$("drBack").onclick = showList;
+$("scrim").onclick = closeDrawer;
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && $("drawer").classList.contains("on")) closeDrawer();
+});
+
+LANGS.forEach(l => {
+  const b = document.createElement("button");
+  b.className="chip"; b.textContent=l;
+  b.onclick = () => { b.classList.toggle("on"); selected.has(l)?selected.delete(l):selected.add(l);
+    refreshGo(); };
+  $("langs").appendChild(b);
+});
+$("langAll").onclick = () => {
+  [...document.querySelectorAll("#langs .chip")].forEach(b => { b.classList.add("on"); selected.add(b.textContent); });
+  refreshGo();
+};
+$("langNone").onclick = () => {
+  [...document.querySelectorAll("#langs .chip")].forEach(b => b.classList.remove("on"));
+  selected.clear(); refreshGo();
+};
+
+fetch("/api/models").then(r=>r.json()).then(d=>{
+  const opt = m => `<option value="${m.id}">${m.label} · ${m.tier} · ${m.note}</option>`;
+  $("modelA").innerHTML = d.models.map(opt).join("");
+  $("modelB").innerHTML = d.models.map(opt).join("");
+  DEFAULT_MODELS = {a: d.default_a, b: d.default_b};
+  $("modelA").value = d.default_a; $("modelB").value = d.default_b;
+  d.models.forEach(m => MODEL_LABEL[m.id] = m.label);
+  NODES[1].sub = mlabel(d.default_a); NODES[2].sub = mlabel(d.default_b);
+});
+$("modelA").onchange = e => { NODES[1].sub = mlabel(e.target.value); };
+$("modelB").onchange = e => { NODES[2].sub = mlabel(e.target.value); };
+
+function loadVoices(){
+  fetch("/api/voices").then(r=>r.json()).then(d=>{
+    $("voiceSel").innerHTML = d.voices.map(v=>`<option value="${esc(v.value)}">${esc(v.label)}</option>`).join("");
+    $("voiceSel").value = d.voices[0].value;
+  }).catch(()=>{ $("voiceSel").innerHTML = '<option value="ttsmaker:1480">1480 - Alayna</option>'; });
+}
+
+const voiceSpec = () => ($("voiceSel") && $("voiceSel").value) || "ttsmaker:1480";
+
+async function fetchAudio(text){
+  const res = await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({text, voice: voiceSpec()})});
+  if (!res.ok){ const e = await res.json().catch(()=>({})); throw new Error(e.error || "配音失败"); }
+  return await res.blob();
+}
+
+let audioEl=null, playBtn=null;
+async function speak(btn, text, lang){
+  if (playBtn === btn && audioEl){ audioEl.pause(); audioEl=null; btn.classList.remove("on"); btn.textContent="▶"; playBtn=null; return; }
+  if (audioEl && playBtn){ audioEl.pause(); playBtn.classList.remove("on"); playBtn.textContent="▶"; }
+  btn.textContent = "…";
+  try{
+    audioEl = new Audio(URL.createObjectURL(await fetchAudio(text)));
+    playBtn = btn; btn.classList.add("on"); btn.textContent = "❚❚";
+    audioEl.onended = () => { btn.classList.remove("on"); btn.textContent="▶"; playBtn=null; };
+    await audioEl.play();
+  }catch(err){ showErr(String(err.message || err)); btn.textContent="▶"; }
+}
+
+async function downloadAudio(btn, text, lang, key){
+  const old = btn.textContent; btn.textContent = "…";
+  try{
+    const url = URL.createObjectURL(await fetchAudio(text));
+    const a = document.createElement("a");
+    a.href = url; a.download = `${key}_${lang}.mp3`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 8000);
+    btn.textContent = "✓"; toast("音频已下载", "ok"); setTimeout(() => { btn.textContent = old; }, 1200);
+  }catch(err){ showErr(String(err.message || err)); btn.textContent = old; }
+}
+
+$("tbl").addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]"); if(!b) return;
+  const it = items[+b.dataset.i], lang = b.dataset.l;
+  const txt = (finalMap[lang] || {})[it?.key] || "";
+  if (!txt) return;
+  b.classList.contains("dlb") ? downloadAudio(b, txt, lang, it.key) : speak(b, txt, lang);
+});
+
+$("tabUpload").onclick = () => tab(true);
+$("tabManual").onclick = () => tab(false);
+function tab(u){
+  $("tabUpload").classList.toggle("on",u); $("tabManual").classList.toggle("on",!u);
+  $("paneUpload").hidden = !u; $("paneManual").hidden = u;
+  items=[]; $("srcBox").hidden=true; refreshGo();
+}
+$("drop").onclick = () => $("file").click();
+$("drop").ondragover = e => { e.preventDefault(); $("drop").classList.add("over"); };
+$("drop").ondragleave = () => $("drop").classList.remove("over");
+$("drop").ondrop = e => { e.preventDefault(); $("drop").classList.remove("over"); if(e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); };
+$("file").onchange = e => e.target.files[0] && upload(e.target.files[0]);
+$("manual").oninput = () => {
+  const lines = $("manual").value.trim().split("\n").filter(s=>s.trim());
+  items = lines.map((l,i) => {
+    if (l.includes("|")) { const p = l.split("|"); return {key:(p[0]||"").trim()||`key_${i+1}`, zh:p.slice(1).join("|").trim()}; }
+    return {key:`key_${i+1}`, zh:l.trim()};
+  });
+  renderSrc("手动输入", false);
+};
+function upload(f){
+  const fd = new FormData(); fd.append("file", f);
+  fetch("/api/preview",{method:"POST",body:fd}).then(r=>r.json()).then(d=>{
+    if (d.error) return showErr(d.error);
+    items = d.items; renderSrc(d.source);
+    toast(`已导入 ${d.items.length} 条`, "ok");
+  }).catch(e=>showErr(String(e)));
+}
+function renderSrc(src, withList=true){
+  srcName = src;
+  if(!items.length){ $("srcBox").hidden=true; refreshGo(); return; }
+  $("srcBox").hidden = false;
+  $("srcBox").innerHTML = `<div class="src"><button class="src-x" id="srcClear" title="清除">✕</button>
+    <div class="hd">${esc(src)} · 共 ${items.length} 条</div>
+    ${withList ? `<ul>${items.slice(0,6).map(i=>`<li><b>${esc(i.key)}</b> ${esc(i.zh)}</li>`).join("")}</ul>
+      ${items.length>6?`<div class="hd" style="margin-top:5px">… 还有 ${items.length-6} 条</div>`:""}` : ""}</div>`;
+  $("srcClear").onclick = () => {
+    items = []; $("srcBox").hidden = true; $("file").value = ""; $("manual").value = "";
+    refreshGo(); toast("已清除待翻译内容");
+  };
+  refreshGo();
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function refreshGo(){
+  $("start").disabled = running;
+  $("startHint").textContent = running ? "正在翻译中…"
+    : (items.length && selected.size) ? `就绪：${items.length} 条 × ${selected.size} 个语言`
+    : "填好左侧内容与目标语言后开始";
+}
+
+function validate(){
+  const errs = [];
+  if (!items.length){
+    errs.push($("paneManual").hidden ? "还没有导入表格，请选择 xlsx / csv 文件"
+                                     : "还没有输入待翻译内容，每行一条中文");
+  } else {
+    const blank = items.filter(i => !String(i.zh).trim());
+    if (blank.length) errs.push(`有 ${blank.length} 条内容的中文为空（如 ${blank[0].key}）`);
+    const seen = new Set(), dup = new Set();
+    items.forEach(i => seen.has(i.key) ? dup.add(i.key) : seen.add(i.key));
+    if (dup.size) errs.push(`key 重复：${[...dup].slice(0,3).join("、")}${dup.size > 3 ? " 等" : ""}`);
+    const long = items.filter(i => String(i.zh).length > 1000);
+    if (long.length) errs.push(`有 ${long.length} 条中文超过 1000 字（如 ${long[0].key}），建议拆批，避免译文被截断`);
+    if (items.length > 300) errs.push(`共 ${items.length} 条，超过单次 300 条上限，请拆分批次`);
+  }
+  if (!selected.size) errs.push("还没有选择目标语言，至少选一个");
+  return errs;
+}
+function showErr(m){ const e=$("err"); e.style.display="block"; e.textContent="出错："+m; }
+
+$("start").onclick = start;
+$("viewFinal").onclick = () => setView("final");
+$("viewDiff").onclick = () => setView("diff");
+function setView(v){
+  view = v;
+  $("viewFinal").classList.toggle("on",v==="final");
+  $("viewDiff").classList.toggle("on",v==="diff");
+  $("diffPick").hidden = v!=="diff";
+  renderResult();
+}
+
+async function loadHistory(){
+  const box = $("histList");
+  try{
+    const d = await (await fetch("/api/history")).json();
+    $("histCnt").textContent = d.history.length;
+    if (!d.history.length){ box.innerHTML = '<div class="dr-empty">还没有翻译记录<br>完成一次翻译后会出现在这里</div>'; return; }
+    box.innerHTML = d.history.map(h=>`<button class="hitem" data-id="${esc(h.id)}">
+        <span class="r1">
+          <span class="ht">${esc(h.time.slice(5,16))}</span>
+          <span class="hc">${h.count} 条</span>
+          <span class="hm">${esc(h.models || "")}</span>
+        </span>
+        <span class="r2">${h.langs.map(l=>`<span class="tag">${esc(l)}</span>`).join("")}</span>
+      </button>`).join("");
+  }catch(e){ box.innerHTML = '<div class="dr-empty">历史记录加载失败</div>'; }
+}
+
+async function openHistory(id, btn){
+  try{
+    const d = await (await fetch("/api/history/" + encodeURIComponent(id))).json();
+    if (d.error) return toast(d.error, "er");
+    const langs = Object.keys(d.finals || {});
+    $("drTitle").textContent = d.time;
+    $("histDetail").innerHTML = `
+      <dl class="dv-meta">
+        <dt>来源</dt><dd>${esc(d.source || "—")}</dd>
+        <dt>语言</dt><dd>${langs.map(esc).join(" / ")}</dd>
+        <dt>条数</dt><dd>${d.count ?? (d.items||[]).length}</dd>
+        <dt>模型</dt><dd>${esc(d.models || "—")}</dd>
+      </dl>
+      <div class="dv-prev"><table>
+        <thead><tr><th>key</th><th>中文</th><th>${esc(langs[0] || "")}</th></tr></thead>
+        <tbody>${(d.items||[]).slice(0,20).map(it=>`<tr>
+          <td class="k">${esc(it.key)}</td><td>${esc(it.zh)}</td>
+          <td>${esc(((d.finals||{})[langs[0]]||{})[it.key] || "")}</td></tr>`).join("")}</tbody>
+      </table></div>
+      ${(d.items||[]).length > 20 ? `<div class="note" style="text-align:center;margin-top:8px">预览前 20 条</div>` : ""}
+      <div class="dv-act">
+        <button class="btn pri" id="dvLoad">载入到工作台</button>
+        ${d.file ? `<a class="btn" href="/api/download/${encodeURIComponent(d.file)}" target="_blank">下载 xlsx</a>` : ""}
+      </div>`;
+    $("dvLoad").onclick = () => { restoreHistory(d); closeDrawer(); toast("已载入历史记录", "ok"); };
+    showDetail();
+  }catch(err){ toast(String(err), "er"); }
+}
+$("histList").addEventListener("click", async e => {
+  const b = e.target.closest(".hitem"); if(!b) return;
+  await openHistory(b.dataset.id, b);
+});
+
+function restoreHistory(d){
+  items = d.items || [];
+  draftMap = d.drafts || {}; finalMap = d.finals || {};
+  langState = {}; qaRounds = {};
+  srcName = d.source || "历史记录";
+  renderSrc(srcName, true);
+  const langs = Object.keys(finalMap);
+  $("resultPanel").hidden = false;
+  $("logPanel").hidden = true;
+  $("diffLang").innerHTML = langs.map(l=>`<option>${l}</option>`).join("");
+  $("resultMeta").textContent = `${langs.length} 个语言 · ${items.length} 条 · ${d.time}`;
+  $("stageMeta").textContent = "历史记录 · " + d.time;
+  $("stageBox").innerHTML = `<div class="blank"><span class="glyph"></span>这是 ${d.time} 的历史记录（${esc(d.models || "")}）<br>
+    查看结果或在下方重新下载表格；试听 / 下载配音仍可用</div>`;
+  const a = $("dl");
+  a.hidden = !d.file;
+  if (d.file){ a.href = "/api/download/" + encodeURIComponent(d.file); a.textContent = "下载 xlsx"; }
+  setStatus("历史记录", "");
+  setProg(100);
+  renderResult();
+}
+
+function resetAll(){
+  if (running) return;
+  items = []; selected.clear(); srcName = "";
+  draftMap = {}; finalMap = {}; langState = {}; nodeState = {}; qaRounds = {};
+  $("manual").value = ""; $("file").value = ""; $("srcBox").hidden = true;
+  [...document.querySelectorAll("#langs .chip")].forEach(b => b.classList.remove("on"));
+  $("modelA").value = DEFAULT_MODELS.a; $("modelB").value = DEFAULT_MODELS.b;
+  NODES[1].sub = mlabel(DEFAULT_MODELS.a); NODES[2].sub = mlabel(DEFAULT_MODELS.b);
+  $("maxIter").value = 3;
+  tab(true);
+  refreshGo();
+  $("err").style.display = "none"; $("errSide").style.display = "none";
+  $("logPanel").hidden = true; $("resultPanel").hidden = true; $("dl").hidden = true;
+  $("log").innerHTML = "";
+  $("stageBox").innerHTML = '<div class="blank"><span class="glyph"></span>左侧配置好内容与语言，点「开始翻译」，这里会实时显示每一步的数据流向</div>';
+  $("stageMeta").textContent = "等待开始";
+  setStatus("空闲", ""); setProg(0);
+  toast("已重置全部设置");
+}
+$("reset").onclick = resetAll;
+
+function buildStage(){
+  $("stageBox").innerHTML = `<div class="stage">${NODES.map((n,i)=>
+    `${i?'<div class="pipe" id="pipe'+i+'"><span class="arw"></span></div>':""}
+     <div class="node" id="nd${n.id}">
+       <div class="idx">${String(n.id).padStart(2,"0")}</div>
+       <div class="nm">${n.nm}</div>
+       <div class="mdl" id="mdl${n.id}">${n.id===2||n.id===3?n.sub:""}</div>
+       <div class="stat"><i></i><span id="st${n.id}">等待中</span></div>
+       <div class="data" id="dt${n.id}"></div>
+       <div class="loop" id="lp${n.id}"></div>
+     </div>`).join("")}</div>
+    <div class="stage-foot"><span id="footLang">—</span><div class="lbar"><i id="footBar"></i></div><span id="footCnt">0 / 0</span></div>`;
+}
+function setNode(id, state, text, data){
+  const el = $("nd"+id); if(!el) return;
+  el.className = "node" + (state?" "+state:"") + (id===3&&qaRounds[curLang]>1?" showloop":"");
+  $("st"+id).textContent = text;
+  if (data !== undefined) $("dt"+id).textContent = data;
+}
+function setPipe(i, on){ const p=$("pipe"+i); if(p) p.classList.toggle("on", !!on); }
+function log(kind, msg, lang){
+  const t = new Date().toTimeString().slice(0,8);
+  const cls = {ok:"ok",warn:"wn",err:"er"}[kind] || "";
+  const tag = lang ? `[${lang}]` : "·";
+  const d = document.createElement("div");
+  d.innerHTML = `<span class="t">${t}</span><span class="g ${cls}">${tag}</span><span class="m">${msg}</span>`;
+  $("log").appendChild(d);
+  $("log").scrollTop = $("log").scrollHeight;
+}
+/* 进度分两级：语言为主（完成一个语言推进一格），语言内阶段为次（初译 35% / 质检 75% / 定稿 100%）。
+   不能写死「语言数 × 3」——质检轮数不定，且首尾各有一个全局节点，会溢出成 8/6。 */
+let langTotal=0, langDone=0, phase=0;
+function setPhase(p){ if (p > phase) phase = p; updateProg(); }
+function updateProg(){
+  const p = langTotal ? Math.min(100, (langDone + phase) / langTotal * 100) : 0;
+  $("footBar").style.width = p + "%";
+  setProg(p);
+  $("footCnt").textContent = langTotal ? `语言 ${Math.min(langDone + 1, langTotal)} / ${langTotal}` : "—";
+}
+
+async function start(){
+  const errs = validate();
+  const side = $("errSide");
+  if (errs.length){
+    side.style.display = "block";
+    side.innerHTML = errs.map(t => `<div class="li">${esc(t)}</div>`).join("");
+    const btn = $("start");
+    btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+    toast(`有 ${errs.length} 项需要先处理`, "er");
+    return;
+  }
+  side.style.display = "none";
+  running = true;
+  $("start").disabled = true; $("start").classList.add("busy"); $("start").textContent = "翻译中";
+  $("side").classList.add("locked");
+  $("err").style.display="none";
+  draftMap={}; finalMap={}; langState={}; nodeState={}; qaRounds={};
+  const langs = [...selected];
+  langTotal = langs.length; langDone = 0; phase = 0;
+  $("log").innerHTML = ""; $("logPanel").hidden = false;
+  $("resultPanel").hidden = true; $("dl").hidden = true;
+  buildStage();
+  $("footLang").textContent = "准备中";
+  $("stageMeta").textContent = `${langs.length} 个语言串行执行`;
+  setStatus("准备中", "run"); setProg(0);
+  setNode(1,"run","读取中");
+  log("info", `读取输入 · <b>${items.length}</b> 条待翻译 · 目标 ${langs.map(l=>`<b>${l}</b>`).join("、")}`, null);
+  log("info", `A 模型 <b>${mlabel($("modelA").value)}</b> ／ B 模型 <b>${mlabel($("modelB").value)}</b>`, null);
+
+  const res = await fetch("/api/run",{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({items, langs, model_a:$("modelA").value, model_b:$("modelB").value,
+      max_iterations:+$("maxIter").value, source: srcName})
+  });
+  const rd = res.body.getReader(), dec = new TextDecoder();
+  let buf = "";
+  while(true){
+    const {done, value} = await rd.read();
+    if (done) break;
+    buf += dec.decode(value,{stream:true});
+    const parts = buf.split("\n\n"); buf = parts.pop();
+    parts.forEach(handle);
+  }
+  running = false;
+  $("start").classList.remove("busy"); $("start").textContent = "开始翻译";
+  $("side").classList.remove("locked");
+  refreshGo();
+}
+
+function handle(raw){
+  if(!raw.trim()) return;
+  const ev = (raw.match(/^event:\s*(\S+)/m)||[])[1];
+  const dm = raw.match(/^data:\s*(.*)$/m);
+  if(!ev||!dm) return;
+  const d = JSON.parse(dm[1]);
+
+  if (ev === "lang"){
+    if (d.state === "running"){
+      curLang = d.lang;
+      $("footLang").textContent = `当前语言：${d.lang}`;
+      $("stageMeta").textContent = `${d.lang} 处理中`;
+      setStatus(`${d.lang} 处理中`, "run");
+      qaRounds[d.lang] = 0;
+      log("info", `开始处理 <b>${d.lang}</b>`, d.lang);
+    } else {
+      setPipe(1,false); setPipe(2,false); setPipe(3,false);
+      langDone++; phase = 0; updateProg();
+      log("ok", `<b>${d.lang}</b> 完成`, d.lang);
+    }
+    return;
+  }
+  if (ev === "draft"){ draftMap[curLang] = d.map; return; }
+  if (ev === "qa"){
+    qaRounds[curLang] = d.round;
+    log(d.passed?"ok":"warn",
+      `第 ${d.round} 轮质检：${d.passed?"全部合规，通过":"发现问题，已修正 → 进入下一轮"} · 耗时 <b>${d.elapsed}s</b>`,
+      curLang);
+    return;
+  }
+  if (ev === "result"){
+    finalMap = d.finals;
+    $("resultPanel").hidden = false;
+    $("diffLang").innerHTML = Object.keys(finalMap).map(l=>`<option>${l}</option>`).join("");
+    $("resultMeta").textContent = `${Object.keys(finalMap).length} 个语言 · ${items.length} 条`;
+    renderResult();
+    return;
+  }
+  if (ev === "done"){
+    const a = $("dl");
+    a.href = "/api/download/" + encodeURIComponent(d.file);
+    a.hidden = false; a.textContent = `下载 xlsx（${d.count} 条）`;
+    setNode(4,"done","完成", `${d.count} 条`);
+    $("footBar").style.width = "100%";
+    $("stageMeta").textContent = "全部完成";
+    $("footLang").textContent = "已完成";
+    setStatus(`完成 · ${d.count} 条`, "ok"); setProg(100);
+    log("ok", `全流程结束 · 输出 <b>${d.file}</b>`);
+    toast(`翻译完成 · ${d.count} 条`, "ok");
+    loadHistory();
+    return;
+  }
+  if (ev === "error"){ showErr(d.msg); running=false; refreshGo(); log("err", d.msg); return; }
+
+  // node 事件
+  const id = d.id;
+  if (id === 1){
+    setNode(1,"done","已读取", `${d.msg}`);
+    setPipe(1,true);
+    updateProg();
+    return;
+  }
+  if (id === 2){
+    if (d.state === "running"){
+      setNode(2,"running","初译中", `发送 ${items.length} 条`);
+      setPipe(1,true);
+      log("info", `A 模型 <b>${mlabel(d.model)}</b> 开始初译，发送 <b>${items.length}</b> 条原文`, curLang);
+    } else {
+      setNode(2, d.state==="done"?"done":"fail", d.state==="done"?"已完成":"失败",
+        d.elapsed!==undefined ? `${d.count} 条 · ${d.elapsed}s` : "");
+      $("mdl2").textContent = mlabel(d.model);
+      setPipe(1,false); setPipe(2,true);
+      setPhase(.35);
+      log(d.state==="done"?"ok":"err",
+        `A 模型返回 <b>${d.count||0}</b> 条译文 · 耗时 <b>${d.elapsed}s</b>`, curLang);
+    }
+    return;
+  }
+  if (id === 3){
+    if (d.state === "running"){
+      setNode(3,"running",`第 ${d.round} 轮`,`复核 ${items.length} 条`);
+      setPipe(2,true);
+      log("info", `B 模型 <b>${mlabel(d.model)}</b> 第 <b>${d.round}</b> 轮质检，逐行对照 key / 中文原意 / 译文`, curLang);
+    } else {
+      setNode(3, d.state==="done"?"done":d.state==="warn"?"warn":"fail",
+        d.state==="warn"?"正文为空":d.state==="done"?"第 "+d.round+" 轮":"失败",
+        d.elapsed!==undefined ? `${d.elapsed}s` : "");
+      $("mdl3").textContent = mlabel(d.model);
+      setPipe(2,false);
+      if (d.state !== "warn") setPipe(3,true);
+      // 质检占语言内 35%→75%，按轮次线性推进，多轮时进度条不会卡住
+      const mi = Math.max(1, +$("maxIter").value || 1);
+      setPhase(.35 + .4 * Math.min(1, (d.round || 1) / mi));
+      if (d.state==="warn") log("warn", "质检返回正文为空，保留上一版译文", curLang);
+    }
+    return;
+  }
+  if (id === 4){
+    setNode(4, d.passed===false?"warn":"done", d.passed===false?"已收敛":"通过", d.msg);
+    setPipe(3,true);
+    log(d.passed===false?"warn":"ok", `判定：<b>${d.msg}</b>`, curLang);
+    if (d.passed !== false){ $("lp3").textContent = `↺ ${qaRounds[curLang]||1} 轮`; }
+    setPhase(1);
+    return;
+  }
+  if (id === 5){
+    setNode(4,"done","已输出", d.msg);
+    updateProg();
+    return;
+  }
+}
+
+function renderResult(){
+  const langs = Object.keys(finalMap);
+  if(!langs.length){ $("tbl").innerHTML = '<tr><td class="blank">暂无结果</td></tr>'; return; }
+  if (view === "final"){
+    $("tbl").innerHTML = `<thead><tr><th>key</th><th>中文</th>${langs.map(l=>`<th>${l}</th>`).join("")}</tr></thead>
+      <tbody>${items.map((it,ri)=>`<tr><td class="k">${esc(it.key)}</td><td>${esc(it.zh)}</td>
+        ${langs.map(l=>{const t=(finalMap[l]||{})[it.key]||"";
+          return `<td>${esc(t)}${t?`<button class="spk" data-i="${ri}" data-l="${esc(l)}" title="试听">▶</button><button class="spk dlb" data-i="${ri}" data-l="${esc(l)}" title="下载音频">⬇</button>`:""}</td>`;}).join("")}</tr>`).join("")}</tbody>`;
+  } else {
+    const lang = $("diffLang").value || langs[0];
+    $("tbl").innerHTML = `<thead><tr><th>key</th><th>中文</th><th>A 初译</th><th>B 定稿 · ${lang}</th></tr></thead>
+      <tbody>${items.map((it,ri)=>{
+        const a = (draftMap[lang]||{})[it.key]||"", b = (finalMap[lang]||{})[it.key]||"";
+        const chg = a && b && a!==b;
+        return `<tr><td class="k">${esc(it.key)}</td><td>${esc(it.zh)}</td><td>${esc(a)}</td>
+          <td class="${chg?"mod":""}">${esc(b)}${chg?'<span class="badge">已优化</span>':""}
+          ${b?`<button class="spk" data-i="${ri}" data-l="${esc(lang)}" title="试听">▶</button><button class="spk dlb" data-i="${ri}" data-l="${esc(lang)}" title="下载音频">⬇</button>`:""}</td></tr>`;
+      }).join("")}</tbody>`;
+  }
+}
+$("diffLang").onchange = renderResult;
+loadVoices();
+loadHistory();
+
+function demoStatic() {
+  items = [{key:"imi_about",zh:"关于"},{key:"hello",zh:"你好"},{key:"me",zh:"我的主页"}];
+  renderSrc("手动输入", false);
+  ["英语","日语"].forEach(l => { selected.add(l);
+    [...document.querySelectorAll("#langs .chip")].forEach(b => { if (b.textContent === l) b.classList.add("on"); }); });
+  refreshGo();
+  buildStage();
+  $("logPanel").hidden = false; $("resultPanel").hidden = false;
+  $("stageMeta").textContent = "全部完成";
+  $("footLang").textContent = "已完成";
+  $("footBar").style.width = "100%"; $("footCnt").textContent = "6 / 6 步";
+  setStatus("完成 · 3 条", "ok"); setProg(100);
+  draftMap = {英语:{imi_about:"About",hello:"Hello",me:"Me"},
+              日语:{imi_about:"について",hello:"こんにちは",me:"マイページ"}};
+  finalMap = {英语:{imi_about:"About",hello:"Hi",me:"My Profile"},
+              日语:{imi_about:"について",hello:"こんにちは",me:"マイページ"}};
+  $("diffLang").innerHTML = Object.keys(finalMap).map(l=>`<option>${l}</option>`).join("");
+  $("resultMeta").textContent = "2 个语言 · 3 条";
+  $("dl").hidden = false; $("dl").href = "#"; $("dl").textContent = "下载 xlsx（3 条）";
+  setNode(1,"done","已读取","3 条 · 2 个语言");
+  setNode(2,"done","已完成","3 条 · 5.1s"); $("mdl2").textContent = mlabel($("modelA").value);
+  setNode(3,"done","第 1 轮","2.6s");     $("mdl3").textContent = mlabel($("modelB").value);
+  setNode(4,"done","完成","3 条");
+  qaRounds["日语"] = 1; $("lp3").textContent = "↺ 1 轮";
+  [["info","读取输入 · <b>3</b> 条待翻译 · 目标 <b>英语</b>、<b>日语</b>"],
+   ["info","A 模型 <b>Ling 3.0 Flash Sante</b> ／ B 模型 <b>LongCat 2.0</b>"],
+   ["info","开始处理 <b>英语</b>","英语"],
+   ["info","A 模型 <b>Ling 3.0 Flash Sante</b> 开始初译，发送 <b>3</b> 条原文","英语"],
+   ["ok",  "A 模型返回 <b>3</b> 条译文 · 耗时 <b>5.1s</b>","英语"],
+   ["info","B 模型 <b>LongCat 2.0</b> 第 <b>1</b> 轮质检，逐行对照 key / 中文原意 / 译文","英语"],
+   ["ok",  "第 1 轮质检：全部合规，通过 · 耗时 <b>2.6s</b>","英语"],
+   ["ok",  "<b>英语</b> 完成","英语"],
+   ["ok",  "<b>日语</b> 完成","日语"],
+   ["ok",  "全流程结束 · 输出 <b>翻译定稿_0923_1502.xlsx</b>"]
+  ].forEach(a => log(a[0], a[1], a[2]));
+  renderResult();
+}
+
+function demoRun() {
+  tab(false);
+  $("manual").value = "imi_about|关于\nhello|你好\nme|我的主页";
+  $("manual").dispatchEvent(new Event("input"));
+  [...document.querySelectorAll("#langs .chip")].slice(0, 2).forEach(b => b.click());
+  setTimeout(start, 300);
+}
+
+// 等模型列表就绪（或超时）后再跑演示逻辑，保证节点上能显示模型名
+const demo = new URLSearchParams(location.search).get("demo");
+if (demo) {
+  let tries = 0;
+  const timer = setInterval(() => {
+    if (Object.keys(MODEL_LABEL).length || ++tries > 25) {
+      clearInterval(timer);
+      if (demo === "static") demoStatic();
+      else if (demo === "invalid") start();
+      else if (demo === "drawer") openDrawer();
+      else demoRun();
+    }
+  }, 120);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# ── 密钥与本地配置：绝不入库 ──────────────
+.env
+.env.*
+!.env.example
+
+# ── Python ────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ── 系统文件 ──────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── 运行产物 ──────────────────────────────
+# outputs：翻译结果 xlsx、history/*.json（含用户文案）、tts/*.mp3 缓存
+translator-web/outputs/
+# uploads：用户上传的源表格，含业务文案
+translator-web/uploads/
+# 界面预览截图
+translator-web/ui-preview/
+*.mp3
+
+# ── 业务输入数据 ──────────────────────────
+# 含待翻译文案；若要作为示例入库，用 git add -f 翻译原文.xlsx
+翻译原文.xlsx
+
+# ── 内部工作记录 ──────────────────────────
+.workbuddy/
