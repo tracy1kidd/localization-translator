@@ -574,6 +574,16 @@ fetch("/api/models").then(r=>r.json()).then(d=>{
   $("modelA").value = d.default_a; $("modelB").value = d.default_b;
   d.models.forEach(m => MODEL_LABEL[m.id] = m.label);
   NODES[1].sub = mlabel(d.default_a); NODES[2].sub = mlabel(d.default_b);
+}).catch(() => {
+  // 直接双击打开 index.html 或走静态预览时会走到这里：没有后端，下拉全空且看不出原因
+  const ph = '<option value="">⚠ 未连接本地服务</option>';
+  $("modelA").innerHTML = ph; $("modelB").innerHTML = ph;
+  $("voiceSel").innerHTML = ph;
+  const msg = "连不上本地服务（127.0.0.1:8770），模型与音色列表加载失败。请在 translator-web 目录下执行 python server.py 后，用浏览器打开 http://127.0.0.1:8770";
+  showErr(msg);
+  const side = $("errSide");   // 左栏也要提示：用户盯着的是左栏，右下角的不够醒目
+  side.style.display = "block";
+  side.innerHTML = `<div class="li">${msg}</div>`;
 });
 $("modelA").onchange = e => { NODES[1].sub = mlabel(e.target.value); };
 $("modelB").onchange = e => { NODES[2].sub = mlabel(e.target.value); };
@@ -582,7 +592,10 @@ function loadVoices(){
   fetch("/api/voices").then(r=>r.json()).then(d=>{
     $("voiceSel").innerHTML = d.voices.map(v=>`<option value="${esc(v.value)}">${esc(v.label)}</option>`).join("");
     $("voiceSel").value = d.voices[0].value;
-  }).catch(()=>{ $("voiceSel").innerHTML = '<option value="ttsmaker:1480">1480 - Alayna</option>'; });
+  }).catch(()=>{
+    $("voiceSel").innerHTML = '<option value="ttsmaker:1480">1480 - Alayna（音色接口不可用）</option>';
+    toast("音色列表加载失败，配音可能不可用", "er");
+  });
 }
 
 const voiceSpec = () => ($("voiceSel") && $("voiceSel").value) || "ttsmaker:1480";
@@ -693,6 +706,7 @@ function validate(){
     if (items.length > 300) errs.push(`共 ${items.length} 条，超过单次 300 条上限，请拆分批次`);
   }
   if (!selected.size) errs.push("还没有选择目标语言，至少选一个");
+  if (!$("modelA").value || !$("modelB").value) errs.push("模型列表为空：本地服务未连接，请用 http://127.0.0.1:8770 打开");
   return errs;
 }
 function showErr(m){ const e=$("err"); e.style.display="block"; e.textContent="出错："+m; }
