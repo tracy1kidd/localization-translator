@@ -58,6 +58,14 @@ MODEL_A = "inclusionai/ling-3.0-flash-sante:free"  # 翻译模型 Ling 3.0 Flash
 # （"The free LongCat 2.0 tier has been retired"），必须用不带后缀的付费版
 MODEL_B = "meituan/LongCat-2.0"  # 质检模型 LongCat 2.0（$0.30/$1.20 per 1M token，单次调用成本可忽略）
 
+# 输出表的译文列名用语言代码（APP 本地化按代码取列，如 values-en / strings.xml）。
+# 此前这里被写死成 'id'（疑似把「印尼语」的代码 id 当成了通用字段名），导致所有语言输出列名都叫 id。
+LANG_CODE = {
+    "英语": "en", "波兰语": "pl", "日语": "ja", "韩语": "ko", "繁体中文": "zh-TW",
+    "泰语": "th", "印尼语": "id", "越南语": "vi", "马来语": "ms", "阿拉伯语": "ar",
+    "西班牙语": "es", "葡萄牙语": "pt", "俄语": "ru", "德语": "de", "法语": "fr", "印地语": "hi",
+}
+
 # LongCat 为带思维链的模型，输出预算需留足推理余量
 MAX_TOKENS = 8000
 
@@ -209,12 +217,15 @@ def run_translation(input_path: str, target_lang: str, output_path: str, max_ite
             current_map = qa_map
     
     # 构建最终结果
+    # 译文列名用语言代码（英语→en）；未收录的语言退回语言名本身
+    lang_col = LANG_CODE.get(target_lang, target_lang)
+
     final_results = []
     for item in items:
         final_results.append({
             'key': item['key'],
             'zh': item['zh'],
-            'id': current_map.get(item['key'], '')
+            lang_col: current_map.get(item['key'], '')
         })
     
     # 保存为xlsx
