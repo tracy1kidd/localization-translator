@@ -7,7 +7,7 @@ APP本地化翻译主流程脚本
 配置信息：
 - API: Command Code Provider API (https://api.commandcode.ai/provider/v1)
 - A模型(翻译): inclusionai/ling-3.0-flash-sante:free  (Ling 3.0 Flash Sante，免费额度中)
-- B模型(质检): meituan/LongCat-2.0:free  (LongCat 2.0，免费额度中)
+- B模型(质检): meituan/LongCat-2.0  (LongCat 2.0，付费档；:free 免费档已退役，调用返回 403)
 - 输出格式: xlsx
 
 额度提示：两个 :free 模型均为「每日每账号 100 次请求」，UTC 零点重置。
@@ -54,7 +54,9 @@ def require_key():
 
 # 模型配置
 MODEL_A = "inclusionai/ling-3.0-flash-sante:free"  # 翻译模型 Ling 3.0 Flash Sante
-MODEL_B = "meituan/LongCat-2.0:free"  # 质检模型 LongCat 2.0
+# 注意：:free 后缀的 LongCat 2.0 免费档已于 2026-09 退役，调用返回 403
+# （"The free LongCat 2.0 tier has been retired"），必须用不带后缀的付费版
+MODEL_B = "meituan/LongCat-2.0"  # 质检模型 LongCat 2.0（$0.30/$1.20 per 1M token，单次调用成本可忽略）
 
 # LongCat 为带思维链的模型，输出预算需留足推理余量
 MAX_TOKENS = 8000
