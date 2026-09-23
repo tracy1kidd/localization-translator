@@ -27,21 +27,40 @@ pip install flask pandas requests openpyxl
 
 ## 配置
 
-密钥一律从环境变量读取，**代码内没有任何兜底值**：
+密钥**不进代码、不留明文兜底**。优先级：真实环境变量 > `.env` 里显式填写的值 > macOS 钥匙串。
+
+### 方式一：macOS 钥匙串（推荐，系统加密保管）
+
+```bash
+security add-generic-password -a commandcode -s localization-translator \
+  -w '<你的密钥>' -U
+```
+
+写入后 `.env` 里 `COMMANDCODE_API_KEY` 留空即可，程序会自动去钥匙串取。
+查看/删除：
+
+```bash
+security find-generic-password -a commandcode -s localization-translator -w   # 查看
+security delete-generic-password -a commandcode -s localization-translator    # 删除
+```
+
+### 方式二：`.env`
 
 ```bash
 cp .env.example .env
 ```
 
-然后编辑 `.env`：
-
 | 变量 | 说明 |
 |---|---|
-| `COMMANDCODE_API_KEY` | 翻译通道密钥，必填 |
+| `COMMANDCODE_API_KEY` | 翻译通道密钥；用钥匙串时留空 |
 | `COMMANDCODE_BASE_URL` | 接口地址，默认 `https://api.commandcode.ai/provider/v1` |
 | `TTSMAKER_TOKEN` | 配音通道，留空则配音不可用（不影响翻译） |
 
-`.env` 已被 `.gitignore` 排除，**不要提交**。也可以用环境变量直接注入，优先级高于 `.env`。
+`.env` 已被 `.gitignore` 排除，**不要提交**。
+
+### 方式三：环境变量
+
+`export COMMANDCODE_API_KEY=<密钥>`，优先级最高，适合 CI。
 
 ## 启动网页工作台
 

@@ -16,6 +16,7 @@ APP本地化翻译主流程脚本
 
 import os
 import sys
+import subprocess
 import argparse
 import pandas as pd
 import requests
@@ -37,9 +38,29 @@ def _load_env():
                     os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
+def _keychain_get(service="localization-translator", account="commandcode"):
+    """从 macOS 钥匙串取密钥（由系统加密保管，项目文件里不留明文）。
+    非 macOS、条目不存在或读取被拒时返回空串，不影响其他获取途径。"""
+    if sys.platform != "darwin":
+        return ""
+    try:
+        r = subprocess.run(
+            ["security", "find-generic-password", "-a", account, "-s", service, "-w"],
+            capture_output=True, text=True, timeout=10)
+        return r.stdout.strip() if r.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
 _load_env()
 
-# 密钥必须由环境变量提供，代码里不放任何兜底值 —— 避免随仓库提交而泄漏
+# 密钥优先级：真实环境变量 > .env 里显式填写的值 > macOS 钥匙串
+# 代码内不放任何兜底明文，避免随仓库提交而泄漏
+if not os.environ.get("COMMANDCODE_API_KEY"):
+    _kc = _keychain_get()
+    if _kc:
+        os.environ["COMMANDCODE_API_KEY"] = _kc
+
 API_KEY = os.environ.get("COMMANDCODE_API_KEY", "")
 BASE_URL = os.environ.get("COMMANDCODE_BASE_URL", "https://api.commandcode.ai/provider/v1")
 
@@ -48,8 +69,11 @@ def require_key():
     """调用前显式校验，缺密钥时给出可操作的提示，而不是发出一个必然 401 的请求。"""
     if not API_KEY:
         raise RuntimeError(
-            "缺少 COMMANDCODE_API_KEY。请在项目根目录创建 .env 写入 "
-            "COMMANDCODE_API_KEY=<你的密钥>（.env 已被 .gitignore 排除），或先 export 该环境变量。"
+            "缺少 COMMANDCODE_API_KEY。三种配置方式任选其一：\n"
+            "  1) 存进 macOS 钥匙串（推荐，系统加密保管，项目文件不留明文）：\n"
+            "     security add-generic-password -a commandcode -s localization-translator -w '<密钥>' -U\n"
+            "  2) 项目根目录 .env 里写 COMMANDCODE_API_KEY=<密钥>（.env 已被 .gitignore 排除）\n"
+            "  3) export COMMANDCODE_API_KEY=<密钥>"
         )
 
 # 模型配置
